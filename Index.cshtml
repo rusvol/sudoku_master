@@ -1,0 +1,82 @@
+﻿@{
+    
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div  class="container" style="text-align:center" >
+<h2>Sudoku Master</h2><br/><br/>
+<div class="container"  id="dv_Sudoku"  >
+<div class="fileinput fileinput-new" data-provides="fileinput">
+  <span class="btn btn-default btn-file">
+  <span class="fileinput-new">Select file to load values</span><br/><br/>
+  <!--<span class="fileinput-exists">Change</span> -->
+  <input id="txt_file" type="file" name=""    oninput="ProcessFile()"   ></span>
+   <span class="fileinput-filename"></span>
+   <!--<a href="#" class="close fileinput-exists" data-dismiss="fileinput" style="float: none">&times;</a> -->
+   
+</div>
+</div>
+       
+       <span id="message"  style="color:navy;font-weight:700"></span>
+    </div>
+<script type="text/javascript">
+    var path_prefix = "";
+     
+    
+
+    function ProcessFile(){
+  
+    var passUrl = path_prefix + "/Home/ProcessFile";
+  
+    params =
+    {
+        FileName: $("#txt_file").val()
+    };
+    passUrl = passUrl + "?" + $.param(params, true);
+   // alert("file:   " + $("#txt_file").val());
+   // alert("path :     " +  passUrl );
+    jQuery.ajax({
+        type: "POST",
+        contentType: "application/json; charset=utf-8",
+        url: passUrl,
+        dataType: "json",
+        success: function (json) {
+            if (json != "") {
+                $("#dv_Sudoku").append(json);
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            alert(jqXHR, textStatus, errorThrown);
+        }
+    });
+
+    }
+
+    function SolveThePuzzle() {
+
+        var passUrl = path_prefix + "/Home/SolveThePuzzle";
+        params =
+        {
+            FileName: $("#txt_file").val()
+        };
+        passUrl = passUrl + "?" + $.param(params, true);
+        jQuery.ajax({
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            url: passUrl,
+            dataType: "json",
+            success: function (json) {
+                alert(json[0]);
+                $('body').find("#dv_Table").remove();
+                $("#dv_Sudoku").append(json[1]);
+                $("#message").html(json[0]);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                alert(jqXHR, textStatus, errorThrown);
+            }
+        });
+
+    }
+
+
+
+</script>
