@@ -47,7 +47,7 @@ namespace SudokuMaster
        public List<string>  ReadingFile(string FileName)
         {
             string Result = "";
-            string NewResult = "";
+           
             FileName = Path.Combine(@"C:\Users\Public",
                                         System.IO.Path.GetFileName(FileName));
             StreamReader reader = new StreamReader(FileName);
@@ -141,7 +141,7 @@ namespace SudokuMaster
             List<string> ret_result = new List<string>();
             if (Result == "")
             {
-                ret_result = WriteFile(fileName, NewResult);
+                ret_result = WriteFile(fileName);
                 if (ret_result[0] == "Successfull")
                 {
                     Result = "The Sudoku puzzle solved results: <br/>" + ret_result[1] + "<br/><br/>  saved in file:   " + fileName;
@@ -157,7 +157,7 @@ namespace SudokuMaster
             return new List<string> { Result, table_values };
         }
 
-        public List<string> WriteFile(string FileName, string FileContent)
+        public List<string> WriteFile(string FileName)
         {
 
             string Result = "";
