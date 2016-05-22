@@ -41,7 +41,9 @@
         dataType: "json",
         success: function (json) {
             if (json != "") {
+                $('body').find("#dv_Table").remove();
                 $("#dv_Sudoku").append(json);
+                $("#message").html("");
             }
         },
         error: function (jqXHR, textStatus, errorThrown) {
@@ -65,7 +67,6 @@
             url: passUrl,
             dataType: "json",
             success: function (json) {
-                alert(json[0]);
                 $('body').find("#dv_Table").remove();
                 $("#dv_Sudoku").append(json[1]);
                 $("#message").html(json[0]);

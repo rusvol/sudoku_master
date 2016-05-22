@@ -13,13 +13,13 @@ namespace SudokuMaster
         string[,] all_horizontal = new string[9, 9];
         List<string> list_numbers = new List<string>();
         List<string> inserted_removed = new List<string>();
-
+        int stop_algorithm = 0;
        
         
        public  string FillTheBoard(string FileName){
            
-            FileName = Path.Combine(@"C:\Users\Public",
-                                        System.IO.Path.GetFileName(FileName));
+           FileName = Path.Combine(@"C:\Users\Public",System.IO.Path.GetFileName(FileName));
+         //  FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, System.IO.Path.GetFileName(FileName));
             StreamReader reader = new StreamReader(FileName);
             string inputLine = "";
            
@@ -102,7 +102,7 @@ namespace SudokuMaster
                     second_req.Add(CubeValues(0, 3, 3, 6));
                     third_req.Add(CubeValues(0, 3, 6, 9));
                 }
-                if (a > 2 & a < 6)
+                if (a > 2 && a < 6)
                 {
                     first_req.Add(CubeValues(3, 6, 0, 3));
                     second_req.Add(CubeValues(3, 6, 3, 6));
@@ -120,12 +120,15 @@ namespace SudokuMaster
             for (int n = 0; n < 9; n++)
             {
                 inserted_removed.Clear();
-                if (SettingValues(n, input_req, first_req, second_req, third_req)) { 
-                     ret  =  SettingValues(n, input_req, first_req, second_req, third_req);
-                };
+                stop_algorithm = 0;
+                ret  =  SettingValues(n, input_req, first_req, second_req, third_req);
+                if (stop_algorithm == 0) {
+                    Result = "Sorry.This Sudoku puzzle can be solved by program.";
+                    break;
+                }
             }
-            
 
+            string table_values = "";
             string fileName = FileName.Replace(".txt", ".sln.txt");
             //string fileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
             //"Files", name_part);
@@ -134,30 +137,24 @@ namespace SudokuMaster
             {
                 File.Delete(fileName);
             }
-            // string strFolder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Files");
-            // if (!Directory.Exists(strFolder))
-            // {
-            //     Directory.CreateDirectory(strFolder);
-            // }
-
+          
             List<string> ret_result = new List<string>();
-           if (!ret)
+            if (Result == "")
             {
                 ret_result = WriteFile(fileName, NewResult);
                 if (ret_result[0] == "Successfull")
                 {
-                    Result = "The Sudoku solved results: <br/>" + ret_result[1] + "<br/><br/>  saved in file:   " + fileName;
+                    Result = "The Sudoku puzzle solved results: <br/>" + ret_result[1] + "<br/><br/>  saved in file:   " + fileName;
+                    table_values = ret_result[2];
                 }
                 else
                 {
-                    Result = "Error. System can not create file with results.<br/>" + ret_result[1];
+                    Result = ret_result[0];
                 }
             }
-            else
-            {
-                Result = "This Sudoku puzzle cannot be solve. Please Choose another file";
-            }
-        return new List<string> {Result,ret_result[2]};
+           
+
+            return new List<string> { Result, table_values };
         }
 
         public List<string> WriteFile(string FileName, string FileContent)
@@ -183,6 +180,9 @@ namespace SudokuMaster
                         {
                             table_values = table_values + "<td>" + all_horizontal[r, p] + "</td>";
                             file_line = file_line + all_horizontal[r, p];
+                            if (all_horizontal[r, p].ToLower() == "x") {
+                                Result = "Sorry.This Sudoku puzzle can be solved by program.";
+                            }
                         }
                         file.WriteLine(file_line);
                         file_values = file_values + "<br/>" + file_line;
@@ -191,7 +191,10 @@ namespace SudokuMaster
                     }
                         table_values = table_values + "</table></div><br/><br/> ";
                 }
-                Result = "Successfull";
+                if (Result == "")
+                {
+                    Result = "Successfull";
+                }
             }
             catch (Exception exception)
             {
@@ -209,7 +212,8 @@ namespace SudokuMaster
         public Boolean  SettingValues( int n, List<List<string>> input_req,
                                List<List<string>> first_req, List<List<string>> second_req, List<List<string>> third_req )
         {
-            
+
+            bool ret = false;
             List<List<string>> vertical_list = new List<List<string>>();
             List<List<string>> vertical_list_match = new List<List<string>>();
            
@@ -232,7 +236,7 @@ namespace SudokuMaster
             
             List<string> l_checked = new List<string>();
             string value_char = "";
-
+            
 
             for (int m = 0; m < 9; m++)
             {
@@ -243,7 +247,7 @@ namespace SudokuMaster
                 {
                     compare_horizontal = input_req[n].Intersect(first_req[n]).ToList();
                 }
-                if (m > 2 & m < 6)
+                if (m > 2 && m < 6)
                 {
                     compare_horizontal = input_req[n].Intersect(second_req[n]).ToList();
                 }
@@ -269,15 +273,16 @@ namespace SudokuMaster
                         all_horizontal[n, m] = compare_vertical[0];
                         vertical_list[m].Remove(compare_vertical[0]);
                         inserted_removed.Add(compare_vertical[0]);
+                        stop_algorithm = stop_algorithm + 1;
                     }
                 }
 
             }
-            
 
-            if (input_req[n].Except(inserted_removed).ToList().Count > 0)
+
+            if (input_req[n].Except(inserted_removed).ToList().Count > 0 && stop_algorithm != 0)
             {
-                SettingValues(n, input_req, first_req, second_req, third_req);
+                ret = SettingValues(n, input_req, first_req, second_req, third_req);
                 return true;
            }
             else {
